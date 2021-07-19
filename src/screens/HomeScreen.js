@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -14,8 +14,9 @@ import {
 	KeyboardAvoidingView,
 	Text,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import { addTodo, removeTodo } from '../store/reducer';
+import { addTodo, removeTodo, saveToLocal, setTodos } from '../store/reducer';
 
 const plusIconUrl =
 	'https://cdn0.iconfinder.com/data/icons/very-basic-2-android-l-lollipop-icon-pack/24/plus-512.png';
@@ -27,8 +28,28 @@ const HomeScreen = ({ navigation }) => {
 	const [todoTask, setTodoTask] = useState('');
 	const id = useRef(todos.length);
 
+	const loadTodos = async () => {
+		try {
+			const res = await AsyncStorage.getItem('todos');
+			const loadedTodos = JSON.parse(res);
+			id.current = loadedTodos.length;
+			dispatch(setTodos(loadedTodos));
+		} catch (error) {
+			console.log(error);
+		}
+	};
+
+	useEffect(() => {
+		loadTodos();
+	}, []);
+
 	const taskInputHandler = (text) => {
 		setTodoTask(text);
+	};
+
+	const generateRandomColor = () => {
+		const color = '#' + Math.floor(Math.random() * 16777215).toString(16);
+		return color.length > 6 ? color : color + '0';
 	};
 
 	const createTodoHandler = () => {
@@ -36,16 +57,20 @@ const HomeScreen = ({ navigation }) => {
 			const todo = {
 				id: (id.current + 1).toString(),
 				title: todoTask.trim(),
-				color: '#' + Math.floor(Math.random() * 16777215).toString(16),
+				color: generateRandomColor(),
 			};
+
 			id.current += 1;
+
 			dispatch(addTodo(todo));
+			dispatch(saveToLocal());
 			setTodoTask('');
 		}
 	};
 
 	const deleteTodoHandler = (id) => {
 		dispatch(removeTodo(id));
+		dispatch(saveToLocal());
 	};
 
 	return (
