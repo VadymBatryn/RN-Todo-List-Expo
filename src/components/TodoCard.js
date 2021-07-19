@@ -15,7 +15,11 @@ const TodoCard = (props) => {
 			style={styles.item}
 			onPress={() => props.onPressHandler(props.id)}>
 			<View style={styles.itemLeft}>
-				<View style={styles.square}></View>
+				<View
+					style={{
+						...styles.square,
+						backgroundColor: props.color,
+					}}></View>
 				<Text style={styles.itemText}>{props.task}</Text>
 			</View>
 			<View style={styles.circular}></View>
@@ -42,7 +46,6 @@ const styles = StyleSheet.create({
 		flexWrap: 'wrap',
 	},
 	square: {
-		backgroundColor: '#55BCF6',
 		width: 24,
 		height: 24,
 		opacity: 0.3,
