@@ -36,6 +36,7 @@ const HomeScreen = ({ navigation }) => {
 			const todo = {
 				id: (id.current + 1).toString(),
 				title: todoTask.trim(),
+				color: '#' + Math.floor(Math.random() * 16777215).toString(16),
 			};
 			id.current += 1;
 			dispatch(addTodo(todo));
@@ -50,15 +51,7 @@ const HomeScreen = ({ navigation }) => {
 	return (
 		<SafeAreaView style={styles.screen}>
 			<KeyboardAvoidingView behavior={'padding'} style={{ flex: 1 }}>
-				<Text
-					style={{
-						fontSize: 24,
-						fontWeight: 'bold',
-						marginLeft: 20,
-						marginVertical: 20,
-					}}>
-					Today's Plan
-				</Text>
+				<Text style={styles.title}>Today's Plan</Text>
 				<FlatList
 					contentContainerStyle={styles.tasksContainer}
 					data={todos}
@@ -66,6 +59,7 @@ const HomeScreen = ({ navigation }) => {
 						<TodoCard
 							id={itemData.item.id}
 							task={itemData.item.title}
+							color={itemData.item.color}
 							onPressHandler={deleteTodoHandler}
 						/>
 					)}
@@ -101,6 +95,12 @@ const styles = StyleSheet.create({
 	screen: {
 		flex: 1,
 		backgroundColor: '#eee',
+	},
+	title: {
+		fontSize: 28,
+		fontWeight: 'bold',
+		marginLeft: 30,
+		marginVertical: 30,
 	},
 	tasksContainer: {
 		padding: 10,
