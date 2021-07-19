@@ -22,7 +22,7 @@ const TodoCard = (props) => {
 					}}></View>
 				<Text style={styles.itemText}>{props.task}</Text>
 			</View>
-			<View style={styles.circular}></View>
+			<View style={{ ...styles.circular, borderColor: props.color }}></View>
 		</TouchableOpacity>
 	);
 };
@@ -58,7 +58,6 @@ const styles = StyleSheet.create({
 	circular: {
 		width: 12,
 		height: 12,
-		borderColor: '#55BCF6',
 		borderWidth: 2,
 		borderRadius: 5,
 	},
