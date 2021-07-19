@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -24,8 +24,8 @@ const HomeScreen = ({ navigation }) => {
 	const dispatch = useDispatch();
 
 	const todos = useSelector((state) => state.todos.todos);
-
 	const [todoTask, setTodoTask] = useState('');
+	const id = useRef(todos.length);
 
 	const taskInputHandler = (text) => {
 		setTodoTask(text);
@@ -34,10 +34,10 @@ const HomeScreen = ({ navigation }) => {
 	const createTodoHandler = () => {
 		if (todoTask.trim()) {
 			const todo = {
-				id: (todos.length + 1).toString(),
+				id: (id.current + 1).toString(),
 				title: todoTask.trim(),
 			};
-
+			id.current += 1;
 			dispatch(addTodo(todo));
 			setTodoTask('');
 		}
