@@ -1,6 +1,34 @@
-import { createSlice } from '@reduxjs/toolkit';
-import { State } from 'react-native-gesture-handler';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
+export const fetchTodos = createAsyncThunk(
+	'todos/fetchTodos',
+
+	async () => {
+		try {
+			const res = await AsyncStorage.getItem('todos');
+			const loadedTodos = JSON.parse(res);
+			return loadedTodos;
+		} catch (error) {
+			console.log(error);
+		}
+	}
+);
+
+export const saveToLocalStorage = createAsyncThunk(
+	'todos/saveToLocalStorage',
+
+	async (_, { getState }) => {
+		const { todos } = getState().todos;
+		const localTodos = JSON.stringify(todos);
+		try {
+			AsyncStorage.setItem('todos', localTodos);
+		} catch (err) {
+			console.log(err);
+		}
+	}
+);
+
 const todosSlice = createSlice({
 	name: 'todos',
 	initialState: {
@@ -10,23 +38,16 @@ const todosSlice = createSlice({
 		addTodo(state, action) {
 			state.todos.push(action.payload);
 		},
-		setTodos(state, action) {
-			state.todos = action.payload;
-		},
 		removeTodo(state, action) {
 			state.todos = state.todos.filter((todo) => todo.id !== action.payload);
 		},
-		saveToLocal(state) {
-			const localTodos = JSON.stringify(state.todos);
-			try {
-				AsyncStorage.setItem('todos', localTodos);
-			} catch (err) {
-				console.log(err);
-			}
-		},
+	},
+	extraReducers: (builder) => {
+		builder.addCase(fetchTodos.fulfilled, (state, action) => {
+			state.todos = action.payload;
+		});
 	},
 });
 export default todosSlice.reducer;
 
-export const { addTodo, removeTodo, setTodos, saveToLocal } =
-	todosSlice.actions;
+export const { addTodo, removeTodo } = todosSlice.actions;
