@@ -1,156 +1,16 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React from 'react';
+import { SafeAreaView } from 'react-native';
+//Components
+import TodoList from '../components/TodoList/TodoList';
+//Styles
+import styles from './HomeScreen.style';
 
-import { useDispatch, useSelector } from 'react-redux';
-
-import TodoCard from '../components/TodoCard';
-import {
-	StyleSheet,
-	View,
-	TouchableOpacity,
-	FlatList,
-	TextInput,
-	Image,
-	SafeAreaView,
-	KeyboardAvoidingView,
-	Text,
-} from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-import { addTodo, removeTodo, saveToLocal, setTodos } from '../store/reducer';
-
-const plusIconUrl =
-	'https://cdn0.iconfinder.com/data/icons/very-basic-2-android-l-lollipop-icon-pack/24/plus-512.png';
-
-const HomeScreen = ({ navigation }) => {
-	const dispatch = useDispatch();
-
-	const todos = useSelector((state) => state.todos.todos);
-	const [todoTask, setTodoTask] = useState('');
-	const id = useRef(todos.length);
-
-	const loadTodos = async () => {
-		try {
-			const res = await AsyncStorage.getItem('todos');
-			const loadedTodos = JSON.parse(res);
-			id.current = loadedTodos.length;
-			dispatch(setTodos(loadedTodos));
-		} catch (error) {
-			console.log(error);
-		}
-	};
-
-	useEffect(() => {
-		loadTodos();
-	}, []);
-
-	const taskInputHandler = (text) => {
-		setTodoTask(text);
-	};
-
-	const generateRandomColor = () => {
-		const color = '#' + Math.floor(Math.random() * 16777215).toString(16);
-		return color.length > 6 ? color : color + '0';
-	};
-
-	const createTodoHandler = () => {
-		if (todoTask.trim()) {
-			const todo = {
-				id: (id.current + 1).toString(),
-				title: todoTask.trim(),
-				color: generateRandomColor(),
-			};
-
-			id.current += 1;
-
-			dispatch(addTodo(todo));
-			dispatch(saveToLocal());
-			setTodoTask('');
-		}
-	};
-
-	const deleteTodoHandler = (id) => {
-		dispatch(removeTodo(id));
-		dispatch(saveToLocal());
-	};
-
+const HomeScreen = () => {
 	return (
 		<SafeAreaView style={styles.screen}>
-			<KeyboardAvoidingView behavior={'padding'} style={{ flex: 1 }}>
-				<Text style={styles.title}>Today's Plan</Text>
-				<FlatList
-					contentContainerStyle={styles.tasksContainer}
-					data={todos}
-					renderItem={(itemData) => (
-						<TodoCard
-							id={itemData.item.id}
-							task={itemData.item.title}
-							color={itemData.item.color}
-							onPressHandler={deleteTodoHandler}
-						/>
-					)}
-					keyExtractor={(item) => item.id.toString()}
-				/>
-				<View style={styles.addTaskContainer}>
-					<TextInput
-						style={styles.taskInput}
-						onChangeText={taskInputHandler}
-						value={todoTask}
-						placeholder='What are we doing today?'
-					/>
-					<TouchableOpacity
-						style={styles.addTaskButton}
-						onPress={createTodoHandler}>
-						<Image
-							source={{ uri: plusIconUrl }}
-							style={{
-								height: 25,
-								width: 25,
-							}}
-						/>
-					</TouchableOpacity>
-				</View>
-			</KeyboardAvoidingView>
+			<TodoList />
 		</SafeAreaView>
 	);
 };
 
 export default HomeScreen;
-
-const styles = StyleSheet.create({
-	screen: {
-		flex: 1,
-		backgroundColor: '#eee',
-	},
-	title: {
-		fontSize: 28,
-		fontWeight: 'bold',
-		marginLeft: 30,
-		marginVertical: 30,
-	},
-	tasksContainer: {
-		padding: 10,
-		alignItems: 'center',
-	},
-	addTaskContainer: {
-		height: 100,
-		padding: 20,
-		flexDirection: 'row',
-		justifyContent: 'space-between',
-		alignItems: 'center',
-	},
-	taskInput: {
-		width: '80%',
-		height: '80%',
-		borderRadius: 40,
-		backgroundColor: '#fff',
-		paddingHorizontal: 20,
-	},
-	addTaskButton: {
-		height: 50,
-		width: 50,
-		borderRadius: 25,
-		backgroundColor: '#fff',
-		justifyContent: 'center',
-		alignItems: 'center',
-	},
-});
